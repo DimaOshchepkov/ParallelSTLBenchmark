@@ -22,6 +22,33 @@ MatrixManager2dStorage transpose_matrix(const Matrix& mat) {
     return transposed_mat;
 }
 
+int scalar_product_par_unseq(const int* v1, const int* v2, size_t size) {
+    return std::transform_reduce(std::execution::par_unseq,
+        v1, v1 + size,
+        v2,
+        int(0),
+        std::plus<int>(),
+        std::multiplies<int>());
+}
+
+int scalar_product_seq(const int* v1, const int* v2, size_t size) {
+    return std::transform_reduce(
+        v1, v1 + size,
+        v2,
+        int(0),
+        std::plus<int>(),
+        std::multiplies<int>());
+}
+
+int scalar_product_par(const int* v1, const int* v2, size_t size) {
+    return std::transform_reduce(std::execution::par,
+        v1, v1 + size,
+        v2,
+        int(0),
+        std::plus<int>(),
+        std::multiplies<int>());
+}
+
 // Функция для умножения двух матриц MatrixManager2dStorage
 MatrixManager2dStorage multiply_matrices_to_2dstorage_seq(const Matrix& mat1, const Matrix& mat2) {
     // Проверяем, что количество столбцов первой матрицы равно количеству строк второй матрицы
@@ -42,7 +69,7 @@ MatrixManager2dStorage multiply_matrices_to_2dstorage_seq(const Matrix& mat1, co
     // Умножение матриц
     for (int i = 0; i < rows; ++i) {
         for (int j = 0; j < cols; ++j) {
-            result.at(i, j) = std::transform_reduce(mat1[i], mat1[i] + mat1.get_cols(), mat2T[j], 0);
+            result.at(i, j) = scalar_product_seq(mat1[i], mat2[j], (size_t)mat1.get_cols());
         }
     }
 
@@ -69,7 +96,7 @@ MatrixManager2dStorage multiply_matrices_to_2dstorage_par(const Matrix& mat1, co
     // Умножение матриц
     for (int i = 0; i < rows; ++i) {
         for (int j = 0; j < cols; ++j) {
-            result.at(i, j) = std::transform_reduce(std::execution::par, mat1[i], mat1[i] + mat1.get_cols(), mat2T[j], 0);
+            result.at(i, j) = scalar_product_par(mat1[i], mat2[j], (size_t)mat1.get_cols());
         }
     }
 
@@ -96,7 +123,7 @@ MatrixManager2dStorage multiply_matrices_to_2dstorage_par_unseq(const Matrix& ma
     // Умножение матриц
     for (int i = 0; i < rows; ++i) {
         for (int j = 0; j < cols; ++j) {
-            result.at(i, j) = std::transform_reduce(std::execution::par_unseq, mat1[i], mat1[i] + mat1.get_cols(), mat2T[j], 0);
+            result.at(i, j) = scalar_product_par_unseq(mat1[i], mat2[j], (size_t)mat1.get_cols());
         }
     }
 

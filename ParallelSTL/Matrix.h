@@ -63,5 +63,3 @@ public:
     int get_rows() const override;
     int get_cols() const override;
 };
-
-MatrixManager2dStorage multiply_matrices_to_2dstorage_seq(const Matrix& mat1, const Matrix& mat2);
